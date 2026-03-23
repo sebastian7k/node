@@ -1,25 +1,35 @@
-const http = require("http");
+const express = require('express');
+const UserModel = require('../src/models/user_models');
+
+const app = express();
 const port = 8080;
 
-const server = http.createServer((req, res) => {
-  if (req.url == '/home'){
-    res.writeHead(200, {"Content-Type": "text/html"});
-    res.end('<h1> home page </h1>');
-  }
-  if (req.url == '/users') {
-    const users =[
-      {
-        name: 'Cristiano Soares',
-        email: 'cristiano@gmail.com'
-      },
-      {
-        nome: 'Jose Aleixo',
-        email: 'jose@aleixo.com'
-      }
-    ];
-    res.writeHead(200, {"content-type": "application/json"});
-    res.end(JSON.stringify(users))
-  }
+app.use(express.json());
+
+app.get('/home', (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send('<h1>Hello world</h1>');
 });
 
-server.listen(port, () => console.log(`Rodando na porta ${port}!`));  
+app.get('/users', (req, res) => {
+  const users = [
+    {
+      name: 'Cristiano Soares',
+      email: 'cristiano@example.com',
+    },
+    {
+      name: 'Jose Aleixo',
+      email: 'jose@example.com',
+    },
+  ];
+  res.status(200).json(users);
+});
+
+app.post('/users', async (req, res) => {
+  const user = await UserModel.create(req.body);
+  res.status(201).json(user);
+});
+
+app.listen(port, () => {
+  console.log(`Rodando com express na porta ${port}`);
+});

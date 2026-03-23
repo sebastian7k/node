@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  fristName: {
+  firstName: {
     type: String,
     required: true,
   },
@@ -18,4 +18,4 @@ const userSchema = new mongoose.Schema({
 
   const User = mongoose.model('User', userSchema);
 
-  modele.exports= User;
+  module.exports= User;

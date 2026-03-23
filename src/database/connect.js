@@ -1,17 +1,31 @@
+// src/database/connect.js
 const mongoose = require('mongoose');
-const dns = require('dns');
-
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const connectToDatabase = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
+  const uri = process.env.MONGODB_URI;
 
-    console.log('Conexão com o banco de dados realizada com sucesso! 🎉');
-  } catch (error) {
-    console.log('Erro ao conectar:', error);
+  if (!uri) {
+    throw new Error('MONGODB_URI nao foi definida no arquivo .env');
   }
+
+  try {
+    await mongoose.connect(uri, {
+      family: 4,
+      serverSelectionTimeoutMS: 5000,
+    });
+  } catch (error) {
+    if (error.message.includes('bad auth')) {
+      throw new Error('Falha de autenticacao no MongoDB. Verifique usuario e senha do Atlas no arquivo .env.');
+    }
+
+    if (error.message.includes('querySrv')) {
+      throw new Error('Falha ao resolver o endereco SRV do MongoDB. Use uma URI mongodb:// padrao ou verifique o DNS da rede.');
+    }
+
+    throw error;
+  }
+
+  console.log('Conexao com o banco de dados realizada com sucesso!');
 };
 
 module.exports = connectToDatabase;
- 
